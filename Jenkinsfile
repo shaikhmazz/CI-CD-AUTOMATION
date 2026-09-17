@@ -8,8 +8,8 @@ pipeline {
     environment {
         APP_NAME = "register-app-pipeline"
         RELEASE = "1.0.0"
-        DOCKER_USER = "faizan715"
-        DOCKER_CRED_ID = 'docker-hub' // Updated to match Jenkins credentials ID
+        DOCKER_USER = "maxain27"
+        DOCKER_CRED_ID = 'dockerhub' // Updated to match Jenkins credentials ID
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
@@ -23,7 +23,9 @@ pipeline {
 
         stage("Checkout from SCM") {
             steps {
-                git branch: 'main', credentialsId: 'github-token-auth', url: 'https://github.com/faizan715/Automated-CICD-App'
+                git branch: 'main', 
+                credentialsId: 'github-token-auth', 
+                url: 'https://github.com/shaikhmazz/CI-CD-AUTOMATION.git'
             }
         }
 
@@ -42,8 +44,8 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 script {
-                    withSonarQubeEnv(credentialsId: 'SonarQube-token') { 
-                        sh "mvn sonar:sonar -Dsonar.host.url=http://172.31.22.57:9000"
+                    withSonarQubeEnv(credentialsId: 'SonarQube-Token') { 
+                        sh "mvn sonar:sonar -Dsonar.host.url=http://40.192.66.238:9000/"
                     }
                 }    
             }
@@ -52,7 +54,7 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-token'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Token'
                 }    
             }
         }
@@ -61,7 +63,7 @@ pipeline {
             steps {
                 rtServer (
                     id: "jfrog-server",
-                    url: "http://13.207.163.246:8081/artifactory",
+                    url: "http://40.192.66.238:8081/artifactory",
                     credentialsId: "jfrog"
                 )
 
