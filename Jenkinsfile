@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven'
+        maven 'Maven-3.9.11'
     }
 
     environment {
@@ -86,7 +86,7 @@ pipeline {
         stage('Deploy Artifacts') {
             steps {
                 rtMavenRun (
-                    tool: "Maven",
+                    tool: "Maven-3.9.11",
                     pom: 'webapp/pom.xml',
                     goals: 'clean install',
                     deployerId: "MAVEN_DEPLOYER",
