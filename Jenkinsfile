@@ -12,6 +12,9 @@ pipeline {
         DOCKER_CRED_ID = 'dockerhub' // Updated to match Jenkins credentials ID
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        SONAR_HOST_URL = "http://16.112.180.109:9000"
+        JFROG_URL = "http://16.112.180.109:8082/artifactory"
+        NOTIFICATION_EMAIL = "shaikhmazz125@gmail.com"
     }
 
     stages {
@@ -45,7 +48,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'SonarQube-Token') { 
-                        sh "mvn sonar:sonar -Dsonar.host.url=http://16.112.180.109:9000/"
+                        sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_HOST_URL}"
                     }
                 }    
             }
@@ -63,7 +66,7 @@ pipeline {
             steps {
                 rtServer (
                     id: "jfrog-server",
-                    url: "http://16.112.180.109:8081/artifactory",
+                    url: "${JFROG_URL}",
                     credentialsId: "jfrog"
                 )
 
@@ -130,6 +133,39 @@ pipeline {
                     sh "docker rmi ${IMAGE_NAME}:latest || true"
                 }
             }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    dir('kubernetes') {
+                        kubeconfig(credentialsId: 'kubernetes', serverUrl: '') {
+                            sh 'kubectl apply -f deployment.yml'
+                            sh 'kubectl apply -f service.yml'
+                            sh 'kubectl rollout restart deployment.apps/registerapp-deployment'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            emailext (
+                body: '''${SCRIPT, template="groovy-html.template"}''', 
+                subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Failed", 
+                mimeType: 'text/html',
+                to: "${NOTIFICATION_EMAIL}"
+            )
+        }
+        success {
+            emailext (
+                body: '''${SCRIPT, template="groovy-html.template"}''', 
+                subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Successful", 
+                mimeType: 'text/html',
+                to: "${NOTIFICATION_EMAIL}"
+            )
         }
     }
 }
