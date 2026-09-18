@@ -45,7 +45,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'SonarQube-Token') { 
-                        sh "mvn sonar:sonar -Dsonar.host.url=http://40.192.66.238:9000/"
+                        sh "mvn sonar:sonar -Dsonar.host.url=http://16.112.180.109:9000/"
                     }
                 }    
             }
@@ -63,7 +63,7 @@ pipeline {
             steps {
                 rtServer (
                     id: "jfrog-server",
-                    url: "http://40.192.66.238:8081/artifactory",
+                    url: "http://16.112.180.109:8081/artifactory",
                     credentialsId: "jfrog"
                 )
 
