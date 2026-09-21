@@ -1,10 +1,9 @@
 resource "aws_instance" "web" {
-  ami                         = "ami-03f4878755434977f" #change ami id for different region
-  instance_type               = "m7i-flex.large"
-  key_name                    = "loginKey" #change key name as per your setup
-  vpc_security_group_ids      = [aws_security_group.Jenkins-VM-SG.id]
-  associate_public_ip_address = true
-  user_data                   = templatefile("./install.sh", {})
+  ami                    = "ami-0199ac7c9fbf9ed83" #change ami id for different region
+  instance_type          = "m7i-flex.large"
+  key_name               = "mazz2" #change key name as per your setup
+  vpc_security_group_ids = [aws_security_group.Jenkins-VM-SG.id]
+  user_data              = templatefile("./install.sh", {})
 
   tags = {
     Name = "Jenkins-SonarQube"
